@@ -15,43 +15,47 @@
 	*/
 	
 	$.railsAjaxValidation = {
-		observeField: function(field) {
-			field.change(function() {
-				var form = field.parents('form:first');
-				$.post(form.attr('action'), form.serialize(),
-					function(json) {			
-						var errors = errorsOnAttribute(field.attr('id'), json);
-						$.railsAjaxValidation.settings.removeErrors(field);						
-												
-						if(!field.confirmationField() && errors.length > 0) {
-							$.railsAjaxValidation.settings.showErrors(field, errors);
-						} else if(shouldUpdateConfirmationField(field) && errors.length > 0) {
-							$.railsAjaxValidation.settings.showErrors(field, errors);
-						} else if(field.confirmationSource()) {
-							field.confirmationSource().change();
-						}	else { $.railsAjaxValidation.settings.validField(field); }													
-						
-					}, "json");
-			});
-		},
-		
 		settings: {
 			errorTextClass: 'inline-errors',
 			validClass: 'valid',
-			invalidClass: 'invalid',		
+			invalidClass: 'invalid',
+			enableLog: false,	
 			showErrors: function(field,errors) {
-				field.after('<p class="'+$.railsAjaxValidation.settings.errorTextClass+'" style="display:none";>'+errors.join(', ')+'</p>');				
-				field.siblings('p.'+$.railsAjaxValidation.settings.errorTextClass).fadeIn('fast');
-				field.toggleClass($.railsAjaxValidation.settings.inValidClass);
+				field.after('<p class="'+this.errorTextClass+'" style="display:none";>'+errors.join(', ')+'</p>');				
+				field.siblings('p.'+this.errorTextClass).fadeIn('fast');
+				field.toggleClass(this.inValidClass);
 			},
 			removeErrors: function(field) {
-				$("#" + field.attr('id')+ ' + ' +'p.'+$.railsAjaxValidation.settings.errorTextClass ).fadeOut().remove();				
-				field.removeClass($.railsAjaxValidation.settings.invalidClass);
+				$("#" + field.attr('id')+ ' + ' +'p.'+this.errorTextClass ).fadeOut().remove();				
+				field.removeClass(this.invalidClass);
 			},
 			validField: function(field) {
-				field.toggleClass($.railsAjaxValidation.settings.validClass);
+				field.toggleClass(this.validClass);
 			}
-		}
+		},
+		
+		observeField: function(field) {
+			var callbacks = this.settings;
+			field.change(function() {
+				var form = field.parents('form:first');			
+				
+				$.post(form.attr('action'), form.serialize(),
+					function(json) {			
+						var errors = errorsOnAttribute(field.attr('id'), json);
+						callbacks.removeErrors(field);						
+												
+						if(!field.confirmationField() && errors.length > 0) {
+							callbacks.showErrors(field, errors);						
+						} else if(shouldUpdateConfirmationField(field) && errors.length > 0) {
+							callbacks.showErrors(field, errors);
+						} else if(field.confirmationSource()) {
+							field.confirmationSource().change();
+						}	else { 
+							callbacks.validField(field); 
+						}
+					}, "json");
+			});
+		}		
 	}
 	
 	/* Public, $.fn methods -- available to all jQuery objects */
@@ -100,6 +104,7 @@
 				errors.push(this[1]);
 			}
 		});
+		console.log(errors);
 		return errors;		
 	};
 	
@@ -107,5 +112,7 @@
 		if(field.confirmationField()) { // field is password and there's an input named password_confirmation
 			if(field.confirmationField().val().length > 0) return true;// and the confirmation field has been filled in
 		}
+		
+		return false;
 	};	 
 })(jQuery);

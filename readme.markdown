@@ -9,15 +9,15 @@ The plugin uses server side model validation so the data is being validated just
 ## Configuration
 Defaults:
 
-  errorTextClass: 'inline-errors' //Class for p tag containing errors
-  validClass: 'valid' //gets added to valid inputs
-  invalidClass: 'invalid' //gets added to invalid inputs
+* errorTextClass: 'inline-errors' //Class for p tag containing errors
+* validClass: 'valid' //gets added to valid inputs
+* invalidClass: 'invalid' //gets added to invalid inputs
   
-  Callbacks. Usually you won't have to modify these unless need more control of how errors are inserted into the DOM
-  
-  showErrors: function(field,errors) //field is a jQuery object for input, errors is an array 
-  removeErrors: function(field) //callback to remove error text
-  validField: function(field) //can be used to process valid fields
+Callbacks. Usually you won't have to modify these unless need more control of how errors are inserted into the DOM  
+
+*  showErrors: function(field,errors) //field is a jQuery object for input, errors is an array 
+*  removeErrors: function(field) //callback to remove error text
+*  validField: function(field) //can be used to process valid fields
 
 
 # An Example:
@@ -26,40 +26,59 @@ In order for this to work, our controller needs to respond to JSON. Here's an ex
 
 ## Controller
 
-  # notice how the user is not saved in json requests since we are only interested in validity:
-  def create
-    @user = User.new params[:user]
-    
-    respond_to do |wants|
-      wants.html do
-        if @user.save
-          flash[:notice] = "Your account has been saved."
-          redirect_to @user
-        else
-          render :new
+    # notice how the user is not saved in json requests since we are only interested in validity:
+    def create
+      @user = User.new params[:user]
+  
+      respond_to do |wants|
+        wants.html do
+          if @user.save
+            flash[:notice] = "Your account has been saved."
+            redirect_to @user
+          else
+            render :new
+          end
         end
-      end
-                
-      wants.json do
-        @user.valid?
-        render :json => @user.errors;
-      end
-    end  
-  end
+              
+        wants.json do
+          @user.valid?
+          render :json => @user.errors;
+        end
+      end  
+    end
   
 ## View
-  <% semantic_form_for @user, :html => { :class => 'ajax-validation' } do |form| %>
-  	<% form.inputs :name => 'This is all we need to know' do %>
-  		<%= form.input :name, :label => 'Login' %>
-  		<%= form.input :email %>
-  		<%= form.input :password %>
-  		<%= form.input :password_confirmation %>
-  	<% end %>
+    <% semantic_form_for @user, :html => { :class => 'ajax-validation' } do |form| %>
+    	<% form.inputs :name => 'This is all we need to know' do %>
+    		<%= form.input :name, :label => 'Login' %>
+    		<%= form.input :email %>
+    		<%= form.input :password %>
+    		<%= form.input :password_confirmation %>
+    	<% end %>`
 
-  	<%= form.commit_button 'Sign Up', :button_html => {:type => :image, :src => '/images/buttons/sign_up.png'} %>
-  <% end %>
+    	<%= form.commit_button 'Sign Up', :button_html => {:type => :image, :src => '/images/buttons/sign_up.png'} %>
+    <% end %>
   
 ## Enable Validation
-  $(function() {
-    $('form.ajax-validation').railsAjaxValidation();
-  });
+    $(function() {
+      $('form.ajax-validation').railsAjaxValidation();
+    });
+  
+# Default Settings
+    settings: {
+			errorTextClass: 'inline-errors',
+			validClass: 'valid',
+			invalidClass: 'invalid',		
+			showErrors: function(field,errors) {
+				field.after('<p class="'+this.errorTextClass+'" style="display:none";>'+errors.join(', ')+'</p>');				
+				field.siblings('p.'+this.errorTextClass).fadeIn('fast');
+				field.toggleClass(this.inValidClass);
+			},
+			removeErrors: function(field) {
+				$("#" + field.attr('id')+ ' + ' +'p.'+this.errorTextClass ).fadeOut().remove();				
+				field.removeClass(this.invalidClass);
+			},
+			validField: function(field) {
+				field.toggleClass(this.validClass);
+			}
+		}
