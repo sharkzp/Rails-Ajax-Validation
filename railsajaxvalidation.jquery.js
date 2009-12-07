@@ -22,16 +22,11 @@
 			enableLog: false,	
 			showErrors: function(field,errors) {
 				field.after('<p class="'+this.errorTextClass+'" style="display:none";>'+errors.join(', ')+'</p>');				
-				field.siblings('p.'+this.errorTextClass).fadeIn('fast');
-				field.toggleClass(this.inValidClass);
+				field.siblings('p.'+this.errorTextClass).fadeIn('fast');				
 			},
 			removeErrors: function(field) {
-				$("#" + field.attr('id')+ ' + ' +'p.'+this.errorTextClass ).fadeOut().remove();				
-				field.removeClass(this.invalidClass);
+				$("#" + field.attr('id')+ ' + ' +'p.'+this.errorTextClass ).fadeOut().remove();								
 			},
-			validField: function(field) {
-				field.toggleClass(this.validClass);
-			}
 		},
 		
 		observeField: function(field) {
@@ -42,16 +37,21 @@
 				$.post(form.attr('action'), form.serialize(),
 					function(json) {			
 						var errors = errorsOnAttribute(field.attr('id'), json);
-						callbacks.removeErrors(field);						
+						
+						callbacks.removeErrors(field);
+						field.removeClass(this.invalidClass);						
 												
 						if(!field.confirmationField() && errors.length > 0) {
-							callbacks.showErrors(field, errors);						
+							callbacks.showErrors(field, errors);	
+							field.toggleClass(this.inValidClass);					
 						} else if(shouldUpdateConfirmationField(field) && errors.length > 0) {
 							callbacks.showErrors(field, errors);
+							field.toggleClass(this.inValidClass);
 						} else if(field.confirmationSource()) {
 							field.confirmationSource().change();
 						}	else { 
-							callbacks.validField(field); 
+							callbacks.validField(field);
+							field.toggleClass(this.validClass); 
 						}
 					}, "json");
 			});

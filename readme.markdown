@@ -65,20 +65,13 @@ In order for this to work, our controller needs to respond to JSON. Here's an ex
     });
   
 # Default Settings
-    settings: {
-			errorTextClass: 'inline-errors',
-			validClass: 'valid',
-			invalidClass: 'invalid',		
-			showErrors: function(field,errors) {
-				field.after('<p class="'+this.errorTextClass+'" style="display:none";>'+errors.join(', ')+'</p>');				
-				field.siblings('p.'+this.errorTextClass).fadeIn('fast');
-				field.toggleClass(this.inValidClass);
-			},
-			removeErrors: function(field) {
-				$("#" + field.attr('id')+ ' + ' +'p.'+this.errorTextClass ).fadeOut().remove();				
-				field.removeClass(this.invalidClass);
-			},
-			validField: function(field) {
-				field.toggleClass(this.validClass);
-			}
-		}
+    errorTextClass: 'inline-errors',
+    validClass: 'valid',
+    invalidClass: 'invalid',
+    showErrors: function(field,errors) {
+    	field.after('<p class="'+this.errorTextClass+'" style="display:none";>'+errors.join(', ')+'</p>');				
+    	field.siblings('p.'+this.errorTextClass).fadeIn('fast');				
+    },
+    removeErrors: function(field) {
+    	$("#" + field.attr('id')+ ' + ' +'p.'+this.errorTextClass ).fadeOut().remove();								
+    }
