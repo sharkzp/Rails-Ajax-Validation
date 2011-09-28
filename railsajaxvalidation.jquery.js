@@ -1,18 +1,18 @@
 (function($) {
     /*
-     Ajax Form Validation for Rails applications. This plugin is meant to be used with formastic, but
-     you can customize it for your application using call backs. How it works:
-     1. On input change:
-     2. Calls submits a json request to the form's action
-     3. The controller returns the model's errors in json
-     4. Errors are parsed from json
-     5. Error messages are added into the dom using your callbacks
+Ajax Form Validation for Rails applications. This plugin is meant to be used with formastic, but
+you can customize it for your application using call backs. How it works:
+1. On input change:
+2. Calls submits a json request to the form's action
+3. The controller returns the model's errors in json
+4. Errors are parsed from json
+5. Error messages are added into the dom using your callbacks
 
-     Example usage:
-     $(function() {
-     $(#myform).railsAjaxValidation();
-     });
-     */
+Example usage:
+$(function() {
+$(#myform).railsAjaxValidation();
+});
+*/
 
     $.railsAjaxValidation = {
         settings: {
@@ -102,15 +102,14 @@
 
     function errorsOnAttribute(attribute, json) {
         var errors = new Array();
-
-        $.each(json, function() {
-            var json_attribute = this[0];
+        $.each(json, function(key, value) {
+            var json_attribute = key;
             var regexp = new RegExp('(.+)_' + json_attribute + '$');
             if (attribute.match(regexp)) {
-                errors.push(this[1]);
+                errors.push(value);
             }
         });
-        log(errors);
+        console.log(errors);
         return errors;
     }
 

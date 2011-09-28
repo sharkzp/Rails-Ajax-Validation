@@ -63,6 +63,20 @@ In order for this to work, our controller needs to respond to JSON. Here's an ex
     $(function() {
       $('form.ajax-validation').railsAjaxValidation();
     });
+   
+## Initializer for errors
+    ActionView::Base.field_error_proc = Proc.new do |html_tag, instance|
+      unless html_tag =~ /^<label/
+         %{<div class="field_with_errors">#{html_tag}<p 
+      class="inline-errors">#{instance.error_message.first}</p> </div>}.html_safe
+      else
+        %{<div class="field_with_errors">#{html_tag}</div>}.html_safe
+      end
+    end
+## For nested forms
+    format.json do
+      render :json => @account.errors.merge(@user.errors);
+    end
   
 # Default Settings
     errorTextClass: 'inline-errors',
@@ -75,3 +89,6 @@ In order for this to work, our controller needs to respond to JSON. Here's an ex
     removeErrors: function(field) {
     	$("#" + field.attr('id')+ ' + ' +'p.'+this.errorTextClass ).fadeOut().remove();								
     }
+# Patch Notes
+    Rewrite errorsOnAttribute for properly working.
+    Now working right.
